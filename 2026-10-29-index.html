@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Proposer un événement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Charte du site du Musée national de Préhistoire : Poppins, orange #d14905, survol brun #6b3e1a, gris clair #f5f5f2, angles droits. */
+:root{
+  --bg:#f5f5f2; --surface:#ffffff; --ink:#000000; --muted:#595959; --line:#dddddd;
+  --accent:#d14905; --accent-hover:#6b3e1a; --accent-ink:#ffffff; --accent-soft:#fbeee6; --ochre:#d14905;
+  --danger:#cb2424; --ok:#24883e; --field:#ffffff; --logo-bg:transparent;
+  --f-display:"Poppins",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"Poppins",ui-sans-serif,system-ui,sans-serif;
+  --r:0px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121212; --surface:#1c1c1c; --ink:#f1f1f1; --muted:#a8a8a8; --line:#3a3a3a;
+  --accent:#ff7900; --accent-hover:#ffa04d; --accent-ink:#000000; --accent-soft:#2e1d10; --ochre:#ff7900;
+  --danger:#ff7a7a; --ok:#6fcf87; --field:#161616; --logo-bg:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121212; --surface:#1c1c1c; --ink:#f1f1f1; --muted:#a8a8a8; --line:#3a3a3a;
+  --accent:#ff7900; --accent-hover:#ffa04d; --accent-ink:#000000; --accent-soft:#2e1d10; --ochre:#ff7900;
+  --danger:#ff7a7a; --ok:#6fcf87; --field:#161616; --logo-bg:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;gap:28px}
+header{display:grid;gap:20px}
+header .logo{display:block;height:64px;width:auto;max-width:100%;background:var(--logo-bg);padding:4px;box-sizing:content-box}
+header h1{font:600 clamp(1.8rem,4vw,3rem)/1.2 var(--f-display);margin:0 0 8px;text-wrap:balance}
+header h1::after{content:"";display:block;width:56px;height:4px;background:var(--accent);margin-top:14px}
+header .eyebrow{font:500 .78rem/1 var(--f-display);text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:12px}
+header p{margin:0;max-width:62ch;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{font:600 .95rem var(--f-display);background:none;border:0;color:var(--muted);padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:32px;align-items:start}
+nav.index{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:2px;font-size:.92rem}
+nav.index a{color:var(--muted);text-decoration:none;padding:6px 10px;border-radius:var(--r)}
+nav.index a{border-left:3px solid transparent}
+nav.index a:hover{color:var(--accent);border-left-color:var(--accent);background:none}
+form{display:grid;gap:20px;min-width:0}
+fieldset{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:20px 22px 22px;margin:0;display:grid;gap:16px;min-width:0}
+legend{font:600 1.15rem var(--f-display);color:var(--ink);padding:0 6px;margin-left:-6px}
+.hint{font-size:.88rem;color:var(--muted);margin:0}
+.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.f{display:grid;gap:6px;min-width:0}
+label{font-weight:500;font-size:.92rem}
+label .req{color:var(--danger);margin-left:2px}
+label .opt{font-weight:400;color:var(--muted);font-size:.85rem;margin-left:4px}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:96px}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.f.invalid input,.f.invalid select,.f.invalid textarea{border-color:var(--danger)}
+.err{color:var(--danger);font-size:.85rem;margin:0}
+.count{font-size:.78rem;color:var(--muted);justify-self:end;font-variant-numeric:tabular-nums}
+.repeat{display:grid;gap:12px}
+.item{border:1px dashed var(--line);border-radius:var(--r);padding:14px;display:grid;gap:12px;position:relative}
+.item .rm{justify-self:end}
+.btn{font:600 .95rem var(--f-display);border-radius:var(--r);padding:10px 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn.small{padding:6px 10px;font-size:.85rem}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);padding:12px 24px}
+.btn.primary:hover:not(:disabled){background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn:not(.primary):hover{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.visu{margin:0;padding-left:18px;font-size:.9rem;color:var(--muted);display:grid;gap:2px}
+.visu b{color:var(--ink);font-weight:600}
+.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.notice{border-radius:var(--r);padding:14px 16px;font-size:.95rem}
+.notice.ok{background:var(--accent-soft);border:1px solid var(--accent)}
+.notice.warn{border:1px solid var(--ochre);background:var(--surface)}
+.notice.bad{border:1px solid var(--danger);background:var(--surface);color:var(--danger)}
+.list{display:grid;gap:12px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;gap:10px;min-width:0}
+.card h3{margin:0;font:600 1.1rem var(--f-display)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.88rem;color:var(--muted)}
+.pill{font:600 .75rem var(--f-display);text-transform:uppercase;letter-spacing:.06em;padding:3px 8px;border-radius:99px;border:1px solid currentColor}
+.pill.todo{color:var(--ochre)} .pill.done{color:var(--ok)}
+details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.9rem}
+dl{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);gap:6px 16px;margin:12px 0 0;font-size:.92rem}
+dt{color:var(--muted)} dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:var(--muted);font-style:italic}
+/* Éditeur de texte maison (sans dépendance) */
+.editor{border:1px solid var(--line);border-radius:var(--r);background:var(--field);min-width:0}
+.f.invalid .editor{border-color:var(--danger)}
+.editor:focus-within{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.tb{display:flex;flex-wrap:wrap;gap:2px;padding:6px;border-bottom:1px solid var(--line);background:var(--surface)}
+.tb button{font:500 .85rem var(--f-body);color:var(--ink);background:none;border:1px solid transparent;border-radius:var(--r);min-width:34px;height:32px;padding:0 8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}
+.tb button:hover{border-color:var(--line);color:var(--accent)}
+.tb button[aria-pressed="true"]{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.tb .sep{width:1px;background:var(--line);margin:4px 4px}
+.tb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rte{min-height:220px;padding:12px 14px;outline:none;line-height:1.6;overflow-wrap:anywhere}
+.rte:empty::before{content:attr(data-placeholder);color:var(--muted)}
+.rte > :first-child{margin-top:0} .rte > :last-child{margin-bottom:0}
+.rte p{margin:0 0 .8em} .rte h2{font:600 1.35rem/1.3 var(--f-display);margin:1em 0 .4em} .rte h3{font:600 1.1rem/1.3 var(--f-display);margin:1em 0 .4em}
+.rte ul,.rte ol{margin:0 0 .8em;padding-left:1.4em} .rte a{color:var(--accent)}
+.linkbar{display:flex;flex-wrap:wrap;gap:8px;padding:8px;border-bottom:1px solid var(--line);background:var(--surface)}
+.linkbar input{flex:1 1 220px;padding:6px 10px}
+@media (max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}nav.index{display:none}.row{grid-template-columns:minmax(0,1fr)}fieldset{padding:16px}dl{grid-template-columns:minmax(0,1fr)}dt{margin-top:6px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <img class="logo" src="https://musee-prehistoire-eyzies.fr/sites/prehistoire/files/logo-prehistoire.png" alt="Musée national de Préhistoire" onerror="this.remove()">
+    <div><div class="eyebrow">Agenda · Proposition d'événement</div>
+    <h1>Proposer un événement</h1>
+    <p>Remplissez cette fiche pour qu'un événement soit mis en ligne dans l'agenda du site. Les champs marqués <span style="color:var(--danger)">*</span> sont obligatoires. Les visuels sont transmis par un lien de téléchargement (WeTransfer, Drive, etc.).</p></div>
+  </header>
+
+  <div id="view-form" class="layout">
+    <nav class="index" aria-label="Sections du formulaire">
+      <a href="#s-event">L'événement</a>
+      <a href="#s-dates">Dates et lieu</a>
+      <a href="#s-public">Public</a>
+      <a href="#s-desc">Description</a>
+      <a href="#s-pratique">Infos pratiques</a>
+      <a href="#s-billet">Billetterie</a>
+      <a href="#s-visuels">Visuels</a>
+      <a href="#s-liens">Contenus liés</a>
+    </nav>
+
+    <form id="form" novalidate>
+      <div id="status" hidden></div>
+
+      <fieldset id="s-event">
+        <legend>L'événement</legend>
+        <div class="f"><label for="title">Titre<span class="req">*</span></label><input id="title" required maxlength="255" data-count></div>
+        <div class="f"><label for="subtitle">Sous-titre<span class="opt">facultatif</span></label><input id="subtitle" maxlength="250" data-count></div>
+        <div class="row">
+          <div class="f"><label for="event_type">Type d'événement<span class="req">*</span></label>
+            <select id="event_type" required>
+              <option value="">Choisir…</option>
+              <option value="391">Atelier</option>
+              <option value="419">Manifestations nationales</option>
+              <option value="282">Conférences</option>
+              <option value="346">Evénement</option>
+              <option value="80">Exposition</option>
+              <option value="353">Projection</option>
+              <option value="283">Visites</option>
+            </select></div>
+          <div class="f"><label for="presenter">Présenté par<span class="opt">facultatif</span></label><input id="presenter" maxlength="150" placeholder="Nom de l'intervenant ou de la structure"></div>
+        </div>
+      </fieldset>
+
+      <fieldset id="s-dates">
+        <legend>Dates et lieu</legend>
+        <div class="f"><label for="period">Période<span class="req">*</span></label><input id="period" required maxlength="250" data-count placeholder="Ex. Du 4 au 8 novembre 2026"><p class="hint">Le texte court affiché sur la vignette de l'événement.</p></div>
+        <div class="f"><label for="dates">Dates et horaires<span class="req">*</span></label><textarea id="dates" required maxlength="2000" placeholder="Ex. Samedi 7 novembre 2026, 14 h 30 – 16 h&#10;Mercredis 12, 19 et 26 novembre, 10 h – 12 h"></textarea><p class="hint">Écrivez toutes les dates et heures, une par ligne si besoin.</p></div>
+        <div class="row">
+          <div class="f"><label for="duration">Durée<span class="opt">facultatif</span></label><input id="duration" maxlength="55" placeholder="Ex. 1 h 30"></div>
+          <div class="f"><label for="place">Lieu<span class="req">*</span></label>
+            <select id="place" required>
+              <option value="">Choisir…</option>
+              <option value="78">Musée national de Préhistoire</option>
+              <option value="354">Abri Pataud</option>
+              <option value="434">Musée national de Préhistoire &amp; Abri Pataud</option>
+              <option value="437">Hors les murs</option>
+            </select></div>
+        </div>
+      </fieldset>
+
+      <fieldset id="s-public">
+        <legend>Public</legend>
+        <div class="row">
+          <div class="f"><label for="audience">Type de public<span class="req">*</span></label><input id="audience" required maxlength="200" placeholder="Ex. Tout public, familles"></div>
+          <div class="f"><label for="age">Tranche d'âge<span class="opt">facultatif</span></label><input id="age" maxlength="55" placeholder="Ex. À partir de 7 ans"></div>
+        </div>
+      </fieldset>
+
+      <fieldset id="s-desc">
+        <legend>Description</legend>
+        <div class="f" id="f-description"><label id="description-label">Texte de présentation<span class="req">*</span></label><div class="editor">
+          <div class="tb" role="toolbar" aria-label="Mise en forme du texte">
+            <button type="button" data-block="p" title="Paragraphe">¶</button>
+            <button type="button" data-block="h2" title="Titre">T1</button>
+            <button type="button" data-block="h3" title="Sous-titre">T2</button>
+            <span class="sep"></span>
+            <button type="button" data-cmd="bold" title="Gras (Ctrl+B)"><b>G</b></button>
+            <button type="button" data-cmd="italic" title="Italique (Ctrl+I)"><i>I</i></button>
+            <button type="button" data-cmd="underline" title="Souligné (Ctrl+U)"><u>S</u></button>
+            <span class="sep"></span>
+            <button type="button" data-cmd="insertUnorderedList" title="Liste à puces"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg></button>
+            <button type="button" data-cmd="insertOrderedList" title="Liste numérotée"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 4v4M3 18h3l-3 3h3"/></svg></button>
+            <span class="sep"></span>
+            <button type="button" data-act="link" title="Ajouter un lien"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/></svg></button>
+            <button type="button" data-cmd="unlink" title="Retirer le lien"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 6 0l3-3a4 4 0 0 0-6-6l-1 1"/><path d="M14 10a4 4 0 0 0-6 0l-3 3a4 4 0 0 0 6 6l1-1"/><path d="M4 4l16 16"/></svg></button>
+            <button type="button" data-cmd="removeFormat" title="Effacer la mise en forme"><svg viewBox="0 0 24 24"><path d="M6 4h12M12 4l-4 16M4 20l16-16"/></svg></button>
+          </div>
+          <div class="linkbar" id="linkbar" hidden>
+            <input id="link_url" type="text" inputmode="url" placeholder="https://" aria-label="Adresse du lien">
+            <button type="button" class="btn small primary" id="link_ok">Ajouter le lien</button>
+            <button type="button" class="btn small" id="link_cancel">Annuler</button>
+          </div>
+          <div class="rte" id="description-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="description-label" data-placeholder="Présentez l'événement : déroulé, intervenants, ce que le public va découvrir…"></div>
+        </div><span class="count" id="description-count"></span></div>
+      </fieldset>
+
+      <fieldset id="s-pratique">
+        <legend>Informations pratiques</legend>
+        <p class="hint">Tarif, réservation, point de rendez-vous, accessibilité… Un bloc par information.</p>
+        <div class="repeat" id="infos"></div>
+        <div><button type="button" class="btn small" id="addInfo">Ajouter une information</button></div>
+      </fieldset>
+
+      <fieldset id="s-billet">
+        <legend>Billetterie</legend>
+        <p class="hint">Un bouton par lien (réservation, achat de billets…). Laissez vide si l'entrée est libre.</p>
+        <div class="repeat" id="tickets"></div>
+        <div><button type="button" class="btn small" id="addTicket">Ajouter un lien</button></div>
+      </fieldset>
+
+      <fieldset id="s-visuels">
+        <legend>Visuels</legend>
+        <div class="f"><label for="visuals">Lien de téléchargement des visuels<span class="req">*</span></label><input id="visuals" type="url" required maxlength="2048" placeholder="https://wetransfer.com/…"></div>
+        <ul class="visu">
+          <li><b>Bannière desktop</b> (obligatoire) : 1920 × 600 px, 2 Mo max, PNG, GIF ou JPG</li>
+          <li><b>Bannière mobile</b> : 900 × 600 px, 1 Mo max</li>
+          <li><b>Vignette</b> et <b>affiche</b> : si vous en avez</li>
+          <li><b>Bande-annonce</b> : fichier vidéo ou lien YouTube</li>
+        </ul>
+        <p class="hint">Un lien WeTransfer expire au bout de quelques jours : envoyez la fiche dès que le lien est créé.</p>
+        <div class="f"><label for="copyright">Crédits photo (copyright)<span class="opt">facultatif</span></label><input id="copyright" maxlength="255" placeholder="Ex. © Maxime Villaeys"></div>
+      </fieldset>
+
+      <fieldset id="s-liens">
+        <legend>Contenus liés</legend>
+        <div class="f"><label for="linked_expo">Exposition liée<span class="opt">si l'événement est en lien avec une exposition</span></label><input id="linked_expo" maxlength="255" placeholder="Titre ou lien de l'exposition"></div>
+        <div class="f"><label for="assoc">Pages du site à mettre en avant (« À découvrir »)<span class="opt">3 maximum</span></label><textarea id="assoc" maxlength="1500" style="min-height:80px" placeholder="Un titre ou un lien par ligne"></textarea></div>
+        <div class="f"><label for="message">Message à l'équipe web<span class="opt">facultatif</span></label><textarea id="message" maxlength="2000" style="min-height:80px" placeholder="Date de mise en ligne souhaitée, précision…"></textarea></div>
+      </fieldset>
+
+      <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
+        <label for="website">Ne pas remplir</label><input id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary" id="submit">Envoyer la proposition</button>
+        <button type="button" class="btn" id="copyText">Copier la fiche en texte</button>
+        <span class="hint" id="copyMsg" aria-live="polite"></span>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const TYPES = {"391":"Atelier","419":"Manifestations nationales","282":"Conférences","346":"Evénement","80":"Exposition","353":"Projection","283":"Visites"};
+const PLACES = {"78":"Musée national de Préhistoire","354":"Abri Pataud","434":"Musée national de Préhistoire & Abri Pataud","437":"Hors les murs"};
+
+/* Informations pratiques (répétable) */
+let infoN = 0;
+function addInfo(t="", x=""){
+  const n = ++infoN, el = document.createElement("div");
+  el.className = "item"; el.dataset.info = "";
+  el.innerHTML = `<div class="f"><label for="info_t${n}">Titre</label><input id="info_t${n}" maxlength="255" placeholder="Ex. Tarif"></div>
+    <div class="f"><label for="info_x${n}">Texte</label><textarea id="info_x${n}" maxlength="2000" style="min-height:70px" placeholder="Ex. 6 € / gratuit pour les moins de 26 ans"></textarea></div>
+    <button type="button" class="btn small rm">Retirer</button>`;
+  el.querySelector("input").value = t; el.querySelector("textarea").value = x;
+  el.querySelector(".rm").onclick = () => el.remove();
+  $("#infos").append(el);
+}
+addInfo(); $("#addInfo").onclick = () => addInfo();
+
+/* Billetterie (répétable, 5 liens max) */
+const MAX_TICKETS = 5; let ticketN = 0;
+function syncTicketBtn(){ $("#addTicket").hidden = document.querySelectorAll("[data-ticket]").length >= MAX_TICKETS; }
+function addTicket(){
+  const n = ++ticketN, el = document.createElement("div");
+  el.className = "item"; el.dataset.ticket = "";
+  el.innerHTML = `<div class="row"><div class="f"><label for="tk_url${n}">Lien</label><input id="tk_url${n}" type="url" maxlength="2048" placeholder="https://"></div>
+    <div class="f"><label for="tk_txt${n}">Texte du bouton</label><input id="tk_txt${n}" maxlength="255" placeholder="Ex. Réserver"></div></div>
+    <button type="button" class="btn small rm">Retirer</button>`;
+  el.querySelector(".rm").onclick = () => { el.remove(); syncTicketBtn(); };
+  $("#tickets").append(el); syncTicketBtn();
+}
+addTicket(); $("#addTicket").onclick = () => addTicket();
+
+/* Éditeur du texte de présentation */
+const DESC_MAX = 8000;
+const desc = (() => {
+  const ed = $("#description-editor");
+  const ALLOWED = new Set(["P","BR","STRONG","B","EM","I","U","H2","H3","UL","OL","LI","A"]);
+  const RENAME = {B:"STRONG", I:"EM", DIV:"P", H1:"H2", H4:"H3", H5:"H3", H6:"H3"};
+  try { document.execCommand("defaultParagraphSeparator", false, "p"); } catch {}
+
+  // Nettoyage : ne garde que les balises autorisées (le serveur refait le même tri).
+  function clean(root){
+    const out = document.createElement("div");
+    (function walk(src, dst){
+      src.childNodes.forEach(n => {
+        if (n.nodeType === 3) { dst.append(n.textContent); return; }
+        if (n.nodeType !== 1 || ["SCRIPT","STYLE","META","TITLE"].includes(n.tagName)) return;
+        const tag = RENAME[n.tagName] || n.tagName;
+        if (!ALLOWED.has(tag)) { walk(n, dst); return; }
+        const el = document.createElement(tag);
+        if (tag === "A") { const h = n.getAttribute("href") || ""; if (/^(https?:|mailto:)/i.test(h)) el.setAttribute("href", h); }
+        dst.append(el); walk(n, el);
+      });
+    })(root, out);
+    // Corrige les imbrications produites par le navigateur (liste dans un paragraphe…) et retire les paragraphes vides.
+    out.querySelectorAll("p").forEach(p => { if (p.querySelector("p,ul,ol,h2,h3")) p.replaceWith(...p.childNodes); });
+    out.querySelectorAll("p,h2,h3,li").forEach(el => { if (!el.textContent.trim()) el.remove(); });
+    return out.innerHTML.replace(/&nbsp;/g, " ");
+  }
+
+  // Barre d'outils
+  let saved = null;
+  const sel = () => window.getSelection();
+  const inEd = () => sel().rangeCount && ed.contains(sel().getRangeAt(0).commonAncestorContainer);
+  document.querySelectorAll(".tb button").forEach(btn => {
+    btn.addEventListener("mousedown", e => e.preventDefault()); // garde la sélection dans le texte
+    btn.addEventListener("click", () => {
+      if (!inEd()) ed.focus();
+      if (btn.dataset.cmd) document.execCommand(btn.dataset.cmd, false, null);
+      if (btn.dataset.block) document.execCommand("formatBlock", false, "<" + btn.dataset.block + ">");
+      if (btn.dataset.act === "link") {
+        saved = inEd() ? sel().getRangeAt(0).cloneRange() : null;
+        $("#linkbar").hidden = false; $("#link_url").value = ""; $("#link_url").focus(); return;
+      }
+      updState(); updDesc();
+    });
+  });
+  function closeLink(){ $("#linkbar").hidden = true; ed.focus(); if (saved){ sel().removeAllRanges(); sel().addRange(saved); } }
+  $("#link_cancel").onclick = closeLink;
+  function applyLink(){
+    let url = $("#link_url").value.trim(); if (!url) return closeLink();
+    if (!/^(https?:|mailto:)/i.test(url)) url = (url.includes("@") && !url.includes("/") ? "mailto:" : "https://") + url;
+    closeLink();
+    if (saved && !saved.collapsed) document.execCommand("createLink", false, url);
+    else document.execCommand("insertHTML", false, `<a href="${url.replace(/"/g,"&quot;")}">${url.replace(/</g,"&lt;")}</a>`);
+    updDesc();
+  }
+  $("#link_ok").onclick = applyLink;
+  $("#link_url").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); applyLink(); } if (e.key === "Escape") closeLink(); });
+
+  function updState(){
+    if (!inEd()) return;
+    ["bold","italic","underline","insertUnorderedList","insertOrderedList"].forEach(c => {
+      const b = document.querySelector(`.tb [data-cmd="${c}"]`);
+      const n = sel().anchorNode, inLink = !!(n && (n.nodeType === 1 ? n : n.parentElement).closest("a"));
+      try { b.setAttribute("aria-pressed", document.queryCommandState(c) && !(c === "underline" && inLink)); } catch {}
+    });
+    let block = ""; try { block = (document.queryCommandValue("formatBlock") || "").toLowerCase(); } catch {}
+    document.querySelectorAll(".tb [data-block]").forEach(b => b.setAttribute("aria-pressed", block === b.dataset.block));
+  }
+  document.addEventListener("selectionchange", updState);
+
+  // Collage : on garde la mise en forme utile, on retire le reste (Word, sites web…)
+  // Toujours démarrer dans un paragraphe pour que Titre / Sous-titre s'appliquent dès la première ligne.
+  function ensureBlock(){ if (!ed.firstElementChild && !ed.textContent) { ed.innerHTML = "<p><br></p>"; const r = document.createRange(); r.setStart(ed.firstChild, 0); r.collapse(true); sel().removeAllRanges(); sel().addRange(r); } }
+  ed.addEventListener("focus", ensureBlock);
+  ed.addEventListener("blur", () => { if (!ed.innerText.trim() && !ed.querySelector("li")) ed.innerHTML = ""; updDesc(); });
+  ed.addEventListener("paste", e => {
+    e.preventDefault();
+    const html = e.clipboardData.getData("text/html");
+    if (html) { const tmp = document.createElement("div"); tmp.innerHTML = html; document.execCommand("insertHTML", false, clean(tmp)); }
+    else document.execCommand("insertText", false, e.clipboardData.getData("text/plain"));
+  });
+  ed.addEventListener("input", () => {
+    if (ed.innerText.length > DESC_MAX) { const t = ed.innerText.slice(0, DESC_MAX); ed.textContent = t; }
+    updDesc();
+  });
+
+  return {
+    text: () => ed.innerText.replace(/\n{3,}/g, "\n\n").trim(),
+    html: () => ed.innerText.trim() ? clean(ed) : "",
+    focus: () => ed.focus(),
+    clear: () => { ed.innerHTML = ""; }
+  };
+})();
+document.querySelector("#description-label").onclick = () => desc.focus();
+const descText = () => desc.text();
+const descHtml = () => desc.html();
+function updDesc(){ $("#description-count").textContent = `${descText().length} / ${DESC_MAX}`; }
+updDesc();
+
+/* Compteurs de caractères */
+document.querySelectorAll("[data-count]").forEach(el => {
+  const c = document.createElement("span"); c.className = "count";
+  el.closest(".f").append(c);
+  const up = () => c.textContent = `${el.value.length} / ${el.maxLength}`;
+  el.addEventListener("input", up); up();
+});
+
+const v = id => $("#"+id).value.trim();
+function collect(){
+  const tickets = [...document.querySelectorAll("[data-ticket]")].map(el => { const [u,t] = el.querySelectorAll("input"); return {url:u.value.trim(), title:t.value.trim()}; }).filter(t => t.url);
+  const infos = [...document.querySelectorAll("[data-info]")].map(el => ({title:el.querySelector("input").value.trim(), text:el.querySelector("textarea").value.trim()})).filter(i => i.title || i.text);
+  return {
+    title:v("title"), subtitle:v("subtitle"),
+    event_type:{id:v("event_type"), label:TYPES[v("event_type")]||""},
+    presenter_name:v("presenter"), period:v("period"), dates_text:v("dates"), duration:v("duration"),
+    place:{id:v("place"), label:PLACES[v("place")]||""},
+    audience:v("audience"), age_group:v("age"), description:descHtml(),
+    useful_information:infos, ticket_office:tickets,
+    visuals_url:v("visuals"), copyright:v("copyright"), linked_event:v("linked_expo"),
+    associated_content:v("assoc").split("\n").map(s=>s.trim()).filter(Boolean).slice(0,3),
+    message:v("message")
+  };
+}
+
+function validate(){
+  let first = null;
+  document.querySelectorAll("#form .f").forEach(f => { f.classList.remove("invalid"); f.querySelector(".err")?.remove(); });
+  document.querySelectorAll("#form [required], #form input[type=url], #form input[type=email]").forEach(el => {
+    let msg = "";
+    if (el.required && !el.value.trim()) msg = "Ce champ est obligatoire.";
+    else if (el.value.trim() && !el.checkValidity()) msg = el.type==="email" ? "Saisissez une adresse e-mail valide." : "Saisissez un lien complet, commençant par https://";
+    if (msg){ const f = el.closest(".f"); f.classList.add("invalid"); const p = document.createElement("p"); p.className="err"; p.textContent=msg; f.append(p); first ??= el; }
+  });
+  document.querySelectorAll("[data-ticket]").forEach(item => { const [u,t] = item.querySelectorAll("input"); if (u.value.trim() && !t.value.trim()) { const f=t.closest(".f"); f.classList.add("invalid"); const p=document.createElement("p"); p.className="err"; p.textContent="Indiquez le texte du bouton."; f.append(p); first ??= t; } });
+  if (!descText()) { const f=$("#f-description"); f.classList.add("invalid"); const p=document.createElement("p"); p.className="err"; p.textContent="Ce champ est obligatoire."; f.append(p); if (!first) { desc.focus(); return false; } }
+  if (first){ first.focus(); return false; }
+  return true;
+}
+
+function showStatus(kind, html){ const s=$("#status"); s.className=`notice ${kind}`; s.innerHTML=html; s.hidden=false; s.scrollIntoView({block:"center"}); }
+
+function asText(d){
+  const L = [];
+  const add = (k,val) => { if (val) L.push(`${k} : ${val}`); };
+  add("Titre", d.title); add("Sous-titre", d.subtitle); add("Type d'événement", d.event_type.label);
+  add("Présenté par", d.presenter_name); add("Période", d.period); add("Dates et horaires", d.dates_text);
+  add("Durée", d.duration); add("Lieu", d.place.label); add("Type de public", d.audience); add("Tranche d'âge", d.age_group);
+  add("Description", "\n" + descText());
+  d.useful_information.forEach(i => add(`Info pratique – ${i.title||"(sans titre)"}`, i.text));
+  d.ticket_office.forEach((t,i) => add(`Billetterie ${i+1}`, `${t.title} – ${t.url}`));
+  add("Visuels", d.visuals_url); add("Crédits", d.copyright); add("Exposition liée", d.linked_event);
+  add("À découvrir", d.associated_content.join(" | ")); add("Message", d.message);
+  return L.join("\n");
+}
+
+async function copy(text, msgEl){
+  try { await navigator.clipboard.writeText(text); msgEl.textContent = "Copié."; }
+  catch { const ta=document.createElement("textarea"); ta.value=text; document.body.append(ta); ta.select(); msgEl.textContent = "Copie bloquée : le texte est sélectionné, faites Ctrl+C."; setTimeout(()=>ta.remove(),8000); }
+}
+$("#copyText").onclick = () => copy(asText(collect()), $("#copyMsg"));
+
+$("#form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!validate()) return;
+  const btn = $("#submit"); btn.disabled = true; btn.textContent = "Envoi…";
+  try {
+    const res = await fetch("/api/submit", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({...collect(), website: $("#website").value})
+    });
+    const out = await res.json().catch(() => ({}));
+    if (!res.ok || !out.ok) throw new Error(out.error || "Erreur " + res.status);
+    $("#form").reset(); $("#infos").innerHTML = ""; addInfo(); $("#tickets").innerHTML = ""; addTicket(); desc.clear();
+    document.querySelectorAll("[data-count]").forEach(el => el.dispatchEvent(new Event("input")));
+    showStatus("ok", "<b>Proposition envoyée.</b> L'équipe web la relit avant la mise en ligne. Vous pouvez proposer un autre événement.");
+  } catch (err) {
+    showStatus("bad", "L'envoi a échoué (" + esc(err.message) + "). Cliquez sur <b>Copier la fiche en texte</b> et envoyez-la par e-mail à l'équipe web.");
+  } finally { btn.disabled = false; btn.textContent = "Envoyer la proposition"; }
+});
+function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
+</script>
+</body>
+</html>
