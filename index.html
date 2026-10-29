@@ -75,6 +75,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{out
 .notice{border-radius:var(--r);padding:14px 16px;font-size:.95rem}
 .notice.ok{background:var(--accent-soft);border:1px solid var(--accent)}
 .notice.warn{border:1px solid var(--ochre);background:var(--surface)}
+.notice.draft{border:1px solid var(--line);background:var(--surface);display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
 .notice.bad{border:1px solid var(--danger);background:var(--surface);color:var(--danger)}
 .list{display:grid;gap:12px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:grid;gap:10px;min-width:0}
@@ -115,7 +116,7 @@ html{scroll-behavior:smooth}
     <img class="logo" src="https://musee-prehistoire-eyzies.fr/sites/prehistoire/files/logo-prehistoire.png" alt="Musée national de Préhistoire" onerror="this.remove()">
     <div><div class="eyebrow">Agenda · Proposition d'événement</div>
     <h1>Proposer un événement</h1>
-    <p>Remplissez cette fiche pour qu'un événement soit mis en ligne dans l'agenda du site. Les champs marqués <span style="color:var(--danger)">*</span> sont obligatoires. Les visuels sont transmis par un lien de téléchargement (WeTransfer, Drive, etc.).</p></div>
+    <p>Remplissez cette fiche pour qu'un événement soit mis en ligne dans l'agenda du site. Les champs marqués <span style="color:var(--danger)">*</span> sont obligatoires. Les visuels sont transmis par un lien de téléchargement (WeTransfer, Drive, etc.). Votre saisie est enregistrée automatiquement dans ce navigateur : vous pouvez fermer la page et reprendre plus tard.</p></div>
   </header>
 
   <div id="view-form" class="layout">
@@ -132,6 +133,7 @@ html{scroll-behavior:smooth}
 
     <form id="form" novalidate>
       <div id="status" hidden></div>
+      <div id="draftNotice" class="notice draft" hidden><span id="draftNoticeText"></span><button type="button" class="btn small" id="draftDiscard">Repartir d'une fiche vide</button></div>
 
       <fieldset id="s-event">
         <legend>L'événement</legend>
@@ -248,6 +250,7 @@ html{scroll-behavior:smooth}
         <button type="submit" class="btn primary" id="submit">Envoyer la proposition</button>
         <button type="button" class="btn" id="copyText">Copier la fiche en texte</button>
         <span class="hint" id="copyMsg" aria-live="polite"></span>
+        <span class="hint" id="draftMsg"></span>
       </div>
     </form>
   </div>
@@ -268,7 +271,7 @@ function addInfo(t="", x=""){
     <div class="f"><label for="info_x${n}">Texte</label><textarea id="info_x${n}" maxlength="2000" style="min-height:70px" placeholder="Ex. 6 € / gratuit pour les moins de 26 ans"></textarea></div>
     <button type="button" class="btn small rm">Retirer</button>`;
   el.querySelector("input").value = t; el.querySelector("textarea").value = x;
-  el.querySelector(".rm").onclick = () => el.remove();
+  el.querySelector(".rm").onclick = () => { el.remove(); draft.save(); };
   $("#infos").append(el);
 }
 addInfo(); $("#addInfo").onclick = () => addInfo();
@@ -276,13 +279,14 @@ addInfo(); $("#addInfo").onclick = () => addInfo();
 /* Billetterie (répétable, 5 liens max) */
 const MAX_TICKETS = 5; let ticketN = 0;
 function syncTicketBtn(){ $("#addTicket").hidden = document.querySelectorAll("[data-ticket]").length >= MAX_TICKETS; }
-function addTicket(){
+function addTicket(u="", t=""){
   const n = ++ticketN, el = document.createElement("div");
   el.className = "item"; el.dataset.ticket = "";
   el.innerHTML = `<div class="row"><div class="f"><label for="tk_url${n}">Lien</label><input id="tk_url${n}" type="url" maxlength="2048" placeholder="https://"></div>
     <div class="f"><label for="tk_txt${n}">Texte du bouton</label><input id="tk_txt${n}" maxlength="255" placeholder="Ex. Réserver"></div></div>
     <button type="button" class="btn small rm">Retirer</button>`;
-  el.querySelector(".rm").onclick = () => { el.remove(); syncTicketBtn(); };
+  const [iu, it] = el.querySelectorAll("input"); iu.value = u; it.value = t;
+  el.querySelector(".rm").onclick = () => { el.remove(); syncTicketBtn(); draft.save(); };
   $("#tickets").append(el); syncTicketBtn();
 }
 addTicket(); $("#addTicket").onclick = () => addTicket();
@@ -377,7 +381,9 @@ const desc = (() => {
     text: () => ed.innerText.replace(/\n{3,}/g, "\n\n").trim(),
     html: () => ed.innerText.trim() ? clean(ed) : "",
     focus: () => ed.focus(),
-    clear: () => { ed.innerHTML = ""; }
+    clear: () => { ed.innerHTML = ""; },
+    // Recharge un texte enregistré (analyse inerte via DOMParser, puis même nettoyage qu'au collage)
+    set: html => { ed.innerHTML = html ? clean(new DOMParser().parseFromString(html, "text/html").body) : ""; }
   };
 })();
 document.querySelector("#description-label").onclick = () => desc.focus();
@@ -448,6 +454,78 @@ async function copy(text, msgEl){
 }
 $("#copyText").onclick = () => copy(asText(collect()), $("#copyMsg"));
 
+/* Brouillon : la saisie est gardée dans le navigateur (localStorage) et rechargée à la prochaine visite */
+function resetForm(){
+  $("#form").reset(); $("#infos").innerHTML = ""; addInfo(); $("#tickets").innerHTML = ""; addTicket(); desc.clear();
+  document.querySelectorAll("[data-count]").forEach(el => el.dispatchEvent(new Event("input")));
+  updDesc();
+}
+const draft = (() => {
+  const KEY = "mnp-agenda-brouillon-v1";
+  const FIELDS = ["title","subtitle","event_type","presenter","period","dates","duration","place","audience","age","visuals","copyright","linked_expo","assoc","message"];
+  let timer = null, busy = false;
+  const when = ts => new Date(ts).toLocaleString("fr-FR", {weekday:"long", day:"numeric", month:"long", hour:"2-digit", minute:"2-digit"}).replace(":", " h ");
+  const hour = ts => new Date(ts).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}).replace(":", " h ");
+
+  function snapshot(){
+    const fields = {}; FIELDS.forEach(id => fields[id] = $("#"+id).value);
+    return {
+      v: 1, savedAt: Date.now(), fields,
+      infos: [...document.querySelectorAll("[data-info]")].map(el => [el.querySelector("input").value, el.querySelector("textarea").value]),
+      tickets: [...document.querySelectorAll("[data-ticket]")].map(el => [...el.querySelectorAll("input")].map(i => i.value)),
+      description: descText() ? descHtml() : ""
+    };
+  }
+  const isEmpty = d => !Object.values(d.fields).some(x => x.trim()) && !d.description
+    && !d.infos.flat().some(x => x.trim()) && !d.tickets.flat().some(x => x.trim());
+
+  function saveNow(){
+    clearTimeout(timer); timer = null;
+    if (busy) return;
+    const d = snapshot();
+    try {
+      if (isEmpty(d)) { localStorage.removeItem(KEY); $("#draftMsg").textContent = ""; return; }
+      localStorage.setItem(KEY, JSON.stringify(d));
+      $("#draftMsg").textContent = `Brouillon enregistré à ${hour(d.savedAt)}`;
+    } catch { $("#draftMsg").textContent = "Brouillon non enregistré (stockage du navigateur indisponible)."; }
+  }
+  function save(){ clearTimeout(timer); timer = setTimeout(saveNow, 600); }
+  function clear(){ clearTimeout(timer); timer = null; try { localStorage.removeItem(KEY); } catch {} $("#draftMsg").textContent = ""; $("#draftNotice").hidden = true; }
+
+  function restore(){
+    let d; try { d = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { return; }
+    if (!d || d.v !== 1) return;
+    busy = true;
+    try {
+      FIELDS.forEach(id => { if (typeof d.fields?.[id] === "string") $("#"+id).value = d.fields[id]; });
+      $("#infos").innerHTML = ""; (d.infos?.length ? d.infos : [["",""]]).forEach(([t,x]) => addInfo(t||"", x||""));
+      $("#tickets").innerHTML = ""; (d.tickets?.length ? d.tickets : [["",""]]).slice(0, MAX_TICKETS).forEach(([u,t]) => addTicket(u||"", t||""));
+      desc.set(d.description || "");
+      document.querySelectorAll("[data-count]").forEach(el => el.dispatchEvent(new Event("input")));
+      updDesc();
+    } finally { busy = false; }
+    $("#draftNoticeText").innerHTML = `<b>Brouillon restauré</b> : vous reprenez la fiche commencée ${esc(when(d.savedAt))}.`;
+    $("#draftNotice").hidden = false;
+    $("#draftMsg").textContent = `Brouillon enregistré à ${hour(d.savedAt)}`;
+  }
+
+  $("#form").addEventListener("input", save);
+  $("#form").addEventListener("change", save);
+  document.querySelector(".tb").addEventListener("click", save);   // mise en forme du texte
+  $("#link_ok").addEventListener("click", save);
+  $("#addInfo").addEventListener("click", save);
+  $("#addTicket").addEventListener("click", save);
+  window.addEventListener("pagehide", () => { if (timer) saveNow(); });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && timer) saveNow(); });
+  $("#draftDiscard").onclick = () => {
+    if (!confirm("Effacer le brouillon et repartir d'une fiche vide ?")) return;
+    clear(); resetForm(); $("#status").hidden = true; window.scrollTo({top:0});
+  };
+
+  restore();
+  return { save, clear };
+})();
+
 $("#form").addEventListener("submit", async e => {
   e.preventDefault();
   if (!validate()) return;
@@ -459,8 +537,7 @@ $("#form").addEventListener("submit", async e => {
     });
     const out = await res.json().catch(() => ({}));
     if (!res.ok || !out.ok) throw new Error(out.error || "Erreur " + res.status);
-    $("#form").reset(); $("#infos").innerHTML = ""; addInfo(); $("#tickets").innerHTML = ""; addTicket(); desc.clear();
-    document.querySelectorAll("[data-count]").forEach(el => el.dispatchEvent(new Event("input")));
+    resetForm(); draft.clear();
     showStatus("ok", "<b>Proposition envoyée.</b> L'équipe web la relit avant la mise en ligne. Vous pouvez proposer un autre événement.");
   } catch (err) {
     showStatus("bad", "L'envoi a échoué (" + esc(err.message) + "). Cliquez sur <b>Copier la fiche en texte</b> et envoyez-la par e-mail à l'équipe web.");
