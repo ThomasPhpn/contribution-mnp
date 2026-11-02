@@ -60,6 +60,7 @@ input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{out
 .f.invalid input,.f.invalid select,.f.invalid textarea{border-color:var(--danger)}
 .err{color:var(--danger);font-size:.85rem;margin:0}
 .count{font-size:.78rem;color:var(--muted);justify-self:end;font-variant-numeric:tabular-nums}
+.count.over{color:var(--danger)}
 .repeat{display:grid;gap:12px}
 .item{border:1px dashed var(--line);border-radius:var(--r);padding:14px;display:grid;gap:12px;position:relative}
 .item .rm{justify-self:end}
@@ -116,7 +117,7 @@ html{scroll-behavior:smooth}
     <img class="logo" src="https://musee-prehistoire-eyzies.fr/sites/prehistoire/files/logo-prehistoire.png" alt="Musée national de Préhistoire" onerror="this.remove()">
     <div><div class="eyebrow">Agenda · Proposition d'événement</div>
     <h1>Proposer un événement</h1>
-    <p>Remplissez cette fiche pour qu'un événement soit mis en ligne dans l'agenda du site. Les champs marqués <span style="color:var(--danger)">*</span> sont obligatoires. Les visuels sont transmis par un lien de téléchargement (WeTransfer, Drive, etc.). Votre saisie est enregistrée automatiquement dans ce navigateur : vous pouvez fermer la page et reprendre plus tard.</p></div>
+    <p>Remplis cette fiche et je mets l'événement en ligne dans l'agenda du site. Les champs avec une <span style="color:var(--danger)">*</span> sont obligatoires. Pour les visuels, un lien WeTransfer, Drive ou autre suffit. Ta saisie est gardée dans ce navigateur : tu peux fermer la page et reprendre plus tard.</p></div>
   </header>
 
   <div id="view-form" class="layout">
@@ -139,8 +140,7 @@ html{scroll-behavior:smooth}
         <legend>L'événement</legend>
         <div class="f"><label for="title">Titre<span class="req">*</span></label><input id="title" required maxlength="255" data-count></div>
         <div class="f"><label for="subtitle">Sous-titre<span class="opt">facultatif</span></label><input id="subtitle" maxlength="250" data-count></div>
-        <div class="row">
-          <div class="f"><label for="event_type">Type d'événement<span class="req">*</span></label>
+        <div class="f"><label for="event_type">Type d'événement<span class="req">*</span></label>
             <select id="event_type" required>
               <option value="">Choisir…</option>
               <option value="391">Atelier</option>
@@ -151,14 +151,13 @@ html{scroll-behavior:smooth}
               <option value="353">Projection</option>
               <option value="283">Visites</option>
             </select></div>
-          <div class="f"><label for="presenter">Présenté par<span class="opt">facultatif</span></label><input id="presenter" maxlength="150" placeholder="Nom de l'intervenant ou de la structure"></div>
-        </div>
+        <div class="f"><label for="presenter">Présenté par<span class="opt">facultatif</span></label><textarea id="presenter" maxlength="1000" data-count data-soft="150" style="min-height:70px" placeholder="Nom de l'intervenant ou de la structure, avec sa fonction si besoin"></textarea><p class="hint">Sur le site, ce champ fait normalement 150 caractères maximum. Tu peux faire plus long, j'adapterai.</p></div>
       </fieldset>
 
       <fieldset id="s-dates">
         <legend>Dates et lieu</legend>
         <div class="f"><label for="period">Période<span class="req">*</span></label><input id="period" required maxlength="250" data-count placeholder="Ex. Du 4 au 8 novembre 2026"><p class="hint">Le texte court affiché sur la vignette de l'événement.</p></div>
-        <div class="f"><label for="dates">Dates et horaires<span class="req">*</span></label><textarea id="dates" required maxlength="2000" placeholder="Ex. Samedi 7 novembre 2026, 14 h 30 – 16 h&#10;Mercredis 12, 19 et 26 novembre, 10 h – 12 h"></textarea><p class="hint">Écrivez toutes les dates et heures, une par ligne si besoin.</p></div>
+        <div class="f"><label for="dates">Dates et horaires<span class="req">*</span></label><textarea id="dates" required maxlength="2000" placeholder="Ex. Samedi 7 novembre 2026, 14 h 30 – 16 h&#10;Mercredis 12, 19 et 26 novembre, 10 h – 12 h"></textarea><p class="hint">Toutes les dates et heures, une par ligne si besoin.</p></div>
         <div class="row">
           <div class="f"><label for="duration">Durée<span class="opt">facultatif</span></label><input id="duration" maxlength="55" placeholder="Ex. 1 h 30"></div>
           <div class="f"><label for="place">Lieu<span class="req">*</span></label>
@@ -168,6 +167,7 @@ html{scroll-behavior:smooth}
               <option value="354">Abri Pataud</option>
               <option value="434">Musée national de Préhistoire &amp; Abri Pataud</option>
               <option value="437">Hors les murs</option>
+              <option value="auditorium">Auditorium du Musée national de Préhistoire</option>
             </select></div>
         </div>
       </fieldset>
@@ -204,7 +204,7 @@ html{scroll-behavior:smooth}
             <button type="button" class="btn small primary" id="link_ok">Ajouter le lien</button>
             <button type="button" class="btn small" id="link_cancel">Annuler</button>
           </div>
-          <div class="rte" id="description-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="description-label" data-placeholder="Présentez l'événement : déroulé, intervenants, ce que le public va découvrir…"></div>
+          <div class="rte" id="description-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="description-label" data-placeholder="Présente l'événement : déroulé, intervenants, ce que le public va découvrir…"></div>
         </div><span class="count" id="description-count"></span></div>
       </fieldset>
 
@@ -217,7 +217,7 @@ html{scroll-behavior:smooth}
 
       <fieldset id="s-billet">
         <legend>Billetterie</legend>
-        <p class="hint">Un bouton par lien (réservation, achat de billets…). Laissez vide si l'entrée est libre.</p>
+        <p class="hint">Un bouton par lien (réservation, achat de billets…). Laisse vide si l'entrée est libre.</p>
         <div class="repeat" id="tickets"></div>
         <div><button type="button" class="btn small" id="addTicket">Ajouter un lien</button></div>
       </fieldset>
@@ -225,13 +225,14 @@ html{scroll-behavior:smooth}
       <fieldset id="s-visuels">
         <legend>Visuels</legend>
         <div class="f"><label for="visuals">Lien de téléchargement des visuels<span class="req">*</span></label><input id="visuals" type="url" required maxlength="2048" placeholder="https://wetransfer.com/…"></div>
+        <div class="f"><label for="visuals_pwd">Mot de passe du transfert<span class="opt">si le lien est protégé</span></label><input id="visuals_pwd" maxlength="255" autocomplete="off" spellcheck="false"></div>
         <ul class="visu">
           <li><b>Bannière desktop</b> (obligatoire) : 1920 × 600 px, 2 Mo max, PNG, GIF ou JPG</li>
           <li><b>Bannière mobile</b> : 900 × 600 px, 1 Mo max</li>
-          <li><b>Vignette</b> et <b>affiche</b> : si vous en avez</li>
+          <li><b>Vignette</b> et <b>affiche</b> : si tu en as</li>
           <li><b>Bande-annonce</b> : fichier vidéo ou lien YouTube</li>
         </ul>
-        <p class="hint">Un lien WeTransfer expire au bout de quelques jours : envoyez la fiche dès que le lien est créé.</p>
+        <p class="hint">Un lien WeTransfer expire au bout de quelques jours : envoie la fiche dès que le lien est créé.</p>
         <div class="f"><label for="copyright">Crédits photo (copyright)<span class="opt">facultatif</span></label><input id="copyright" maxlength="255" placeholder="Ex. © Maxime Villaeys"></div>
       </fieldset>
 
@@ -239,7 +240,7 @@ html{scroll-behavior:smooth}
         <legend>Contenus liés</legend>
         <div class="f"><label for="linked_expo">Exposition liée<span class="opt">si l'événement est en lien avec une exposition</span></label><input id="linked_expo" maxlength="255" placeholder="Titre ou lien de l'exposition"></div>
         <div class="f"><label for="assoc">Pages du site à mettre en avant (« À découvrir »)<span class="opt">3 maximum</span></label><textarea id="assoc" maxlength="1500" style="min-height:80px" placeholder="Un titre ou un lien par ligne"></textarea></div>
-        <div class="f"><label for="message">Message à l'équipe web<span class="opt">facultatif</span></label><textarea id="message" maxlength="2000" style="min-height:80px" placeholder="Date de mise en ligne souhaitée, précision…"></textarea></div>
+        <div class="f"><label for="message">Un mot pour moi<span class="opt">facultatif</span></label><textarea id="message" maxlength="2000" style="min-height:80px" placeholder="Date de mise en ligne souhaitée, une précision…"></textarea></div>
       </fieldset>
 
       <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden">
@@ -260,7 +261,7 @@ html{scroll-behavior:smooth}
 <script>
 const $ = s => document.querySelector(s);
 const TYPES = {"391":"Atelier","419":"Manifestations nationales","282":"Conférences","346":"Evénement","80":"Exposition","353":"Projection","283":"Visites"};
-const PLACES = {"78":"Musée national de Préhistoire","354":"Abri Pataud","434":"Musée national de Préhistoire & Abri Pataud","437":"Hors les murs"};
+const PLACES = {"78":"Musée national de Préhistoire","354":"Abri Pataud","434":"Musée national de Préhistoire & Abri Pataud","437":"Hors les murs","auditorium":"Auditorium du Musée national de Préhistoire"};
 
 /* Informations pratiques (répétable) */
 let infoN = 0;
@@ -396,7 +397,10 @@ updDesc();
 document.querySelectorAll("[data-count]").forEach(el => {
   const c = document.createElement("span"); c.className = "count";
   el.closest(".f").append(c);
-  const up = () => c.textContent = `${el.value.length} / ${el.maxLength}`;
+  const soft = +el.dataset.soft || 0;
+  const up = () => { const n = el.value.length;
+    c.textContent = soft ? `${n} / ${soft} conseillés` : `${n} / ${el.maxLength}`;
+    c.classList.toggle("over", soft > 0 && n > soft); };
   el.addEventListener("input", up); up();
 });
 
@@ -411,7 +415,7 @@ function collect(){
     place:{id:v("place"), label:PLACES[v("place")]||""},
     audience:v("audience"), age_group:v("age"), description:descHtml(),
     useful_information:infos, ticket_office:tickets,
-    visuals_url:v("visuals"), copyright:v("copyright"), linked_event:v("linked_expo"),
+    visuals_url:v("visuals"), visuals_password:v("visuals_pwd"), copyright:v("copyright"), linked_event:v("linked_expo"),
     associated_content:v("assoc").split("\n").map(s=>s.trim()).filter(Boolean).slice(0,3),
     message:v("message")
   };
@@ -423,10 +427,10 @@ function validate(){
   document.querySelectorAll("#form [required], #form input[type=url], #form input[type=email]").forEach(el => {
     let msg = "";
     if (el.required && !el.value.trim()) msg = "Ce champ est obligatoire.";
-    else if (el.value.trim() && !el.checkValidity()) msg = el.type==="email" ? "Saisissez une adresse e-mail valide." : "Saisissez un lien complet, commençant par https://";
+    else if (el.value.trim() && !el.checkValidity()) msg = el.type==="email" ? "Adresse e-mail pas valide." : "Il faut un lien complet, qui commence par https://";
     if (msg){ const f = el.closest(".f"); f.classList.add("invalid"); const p = document.createElement("p"); p.className="err"; p.textContent=msg; f.append(p); first ??= el; }
   });
-  document.querySelectorAll("[data-ticket]").forEach(item => { const [u,t] = item.querySelectorAll("input"); if (u.value.trim() && !t.value.trim()) { const f=t.closest(".f"); f.classList.add("invalid"); const p=document.createElement("p"); p.className="err"; p.textContent="Indiquez le texte du bouton."; f.append(p); first ??= t; } });
+  document.querySelectorAll("[data-ticket]").forEach(item => { const [u,t] = item.querySelectorAll("input"); if (u.value.trim() && !t.value.trim()) { const f=t.closest(".f"); f.classList.add("invalid"); const p=document.createElement("p"); p.className="err"; p.textContent="Il manque le texte du bouton."; f.append(p); first ??= t; } });
   if (!descText()) { const f=$("#f-description"); f.classList.add("invalid"); const p=document.createElement("p"); p.className="err"; p.textContent="Ce champ est obligatoire."; f.append(p); if (!first) { desc.focus(); return false; } }
   if (first){ first.focus(); return false; }
   return true;
@@ -443,7 +447,7 @@ function asText(d){
   add("Description", "\n" + descText());
   d.useful_information.forEach(i => add(`Info pratique – ${i.title||"(sans titre)"}`, i.text));
   d.ticket_office.forEach((t,i) => add(`Billetterie ${i+1}`, `${t.title} – ${t.url}`));
-  add("Visuels", d.visuals_url); add("Crédits", d.copyright); add("Exposition liée", d.linked_event);
+  add("Visuels", d.visuals_url); add("Mot de passe des visuels", d.visuals_password); add("Crédits", d.copyright); add("Exposition liée", d.linked_event);
   add("À découvrir", d.associated_content.join(" | ")); add("Message", d.message);
   return L.join("\n");
 }
@@ -462,7 +466,7 @@ function resetForm(){
 }
 const draft = (() => {
   const KEY = "mnp-agenda-brouillon-v1";
-  const FIELDS = ["title","subtitle","event_type","presenter","period","dates","duration","place","audience","age","visuals","copyright","linked_expo","assoc","message"];
+  const FIELDS = ["title","subtitle","event_type","presenter","period","dates","duration","place","audience","age","visuals","visuals_pwd","copyright","linked_expo","assoc","message"];
   let timer = null, busy = false;
   const when = ts => new Date(ts).toLocaleString("fr-FR", {weekday:"long", day:"numeric", month:"long", hour:"2-digit", minute:"2-digit"}).replace(":", " h ");
   const hour = ts => new Date(ts).toLocaleTimeString("fr-FR", {hour:"2-digit", minute:"2-digit"}).replace(":", " h ");
@@ -504,7 +508,7 @@ const draft = (() => {
       document.querySelectorAll("[data-count]").forEach(el => el.dispatchEvent(new Event("input")));
       updDesc();
     } finally { busy = false; }
-    $("#draftNoticeText").innerHTML = `<b>Brouillon restauré</b> : vous reprenez la fiche commencée ${esc(when(d.savedAt))}.`;
+    $("#draftNoticeText").innerHTML = `<b>Brouillon restauré</b> : tu reprends la fiche commencée ${esc(when(d.savedAt))}.`;
     $("#draftNotice").hidden = false;
     $("#draftMsg").textContent = `Brouillon enregistré à ${hour(d.savedAt)}`;
   }
@@ -538,9 +542,9 @@ $("#form").addEventListener("submit", async e => {
     const out = await res.json().catch(() => ({}));
     if (!res.ok || !out.ok) throw new Error(out.error || "Erreur " + res.status);
     resetForm(); draft.clear();
-    showStatus("ok", "<b>Proposition envoyée.</b> L'équipe web la relit avant la mise en ligne. Vous pouvez proposer un autre événement.");
+    showStatus("ok", "<b>C'est envoyé, merci !</b> Je relis et je mets en ligne. Tu peux proposer un autre événement si besoin.");
   } catch (err) {
-    showStatus("bad", "L'envoi a échoué (" + esc(err.message) + "). Cliquez sur <b>Copier la fiche en texte</b> et envoyez-la par e-mail à l'équipe web.");
+    showStatus("bad", "L'envoi a échoué (" + esc(err.message) + "). Clique sur <b>Copier la fiche en texte</b> et envoie-la-moi par e-mail.");
   } finally { btn.disabled = false; btn.textContent = "Envoyer la proposition"; }
 });
 function esc(s){ const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
