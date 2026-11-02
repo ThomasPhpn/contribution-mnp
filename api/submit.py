@@ -34,7 +34,8 @@ REQUIRED = {
 EVENT_TYPES = {"391": "Atelier", "419": "Manifestations nationales", "282": "Conférences",
                "346": "Evénement", "80": "Exposition", "353": "Projection", "283": "Visites"}
 PLACES = {"78": "Musée national de Préhistoire", "354": "Abri Pataud",
-          "434": "Musée national de Préhistoire & Abri Pataud", "437": "Hors les murs"}
+          "434": "Musée national de Préhistoire & Abri Pataud", "437": "Hors les murs",
+          "auditorium": "Auditorium du Musée national de Préhistoire"}  # TODO : remplacer "auditorium" par l'ID du terme Drupal
 
 MAX_TICKETS = 5
 ALLOWED_TAGS = {"p", "br", "strong", "b", "em", "i", "u", "s", "h2", "h3", "ul", "ol", "li", "a"}
@@ -122,7 +123,7 @@ def normalize(raw):
         "title": one_line(raw.get("title")),
         "subtitle": one_line(raw.get("subtitle"), 250),
         "event_type": {"id": et if et in EVENT_TYPES else "", "label": EVENT_TYPES.get(et, "")},
-        "presenter_name": one_line(raw.get("presenter_name"), 150),
+        "presenter_name": one_line(raw.get("presenter_name"), 1000),
         "period": one_line(raw.get("period"), 250),
         "dates_text": clean(raw.get("dates_text"), 2000),
         "duration": one_line(raw.get("duration"), 55),
@@ -134,6 +135,7 @@ def normalize(raw):
         "useful_information": infos,
         "ticket_office": tickets,
         "visuals_url": one_line(raw.get("visuals_url"), 2048),
+        "visuals_password": one_line(raw.get("visuals_password")),
         "copyright": one_line(raw.get("copyright")),
         "linked_event": one_line(raw.get("linked_event")),
         "associated_content": assoc,
@@ -171,7 +173,8 @@ def as_text(d):
         add(f"Info pratique – {i['title'] or '(sans titre)'}", i["text"])
     for n, t in enumerate(d["ticket_office"], 1):
         add(f"Billetterie {n}", f"{t['title']} – {t['url']}")
-    add("Visuels", d["visuals_url"]); add("Crédits", d["copyright"])
+    add("Visuels", d["visuals_url"]); add("Mot de passe des visuels", d["visuals_password"])
+    add("Crédits", d["copyright"])
     add("Exposition liée", d["linked_event"]); add("À découvrir", " | ".join(d["associated_content"]))
     add("Message", d["message"])
     return "\n".join(lines)
@@ -196,6 +199,7 @@ def as_html(d):
     for n, t in enumerate(d["ticket_office"], 1):
         add(f"Billetterie {n}", f'{e(t["title"])} – <a href="{e(t["url"])}">{e(t["url"])}</a>', raw=True)
     add("Visuels", f'<a href="{e(d["visuals_url"])}">{e(d["visuals_url"])}</a>', raw=True)
+    add("Mot de passe des visuels", d["visuals_password"])
     add("Crédits", d["copyright"]); add("Exposition liée", d["linked_event"])
     add("À découvrir", " | ".join(d["associated_content"])); add("Message", d["message"])
     return ('<div style="font-family:Arial,sans-serif;font-size:14px;color:#1c211e">'
